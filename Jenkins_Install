@@ -1,0 +1,29 @@
+#!/bin/bash
+set -eux
+
+# Log everything
+exec > /var/log/user-data.log 2>&1
+
+apt update -y
+
+# Install Java
+apt install -y openjdk-17-jdk
+
+# Verify Java
+java -version
+
+# Add Jenkins key & repo
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key \
+  | tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+https://pkg.jenkins.io/debian-stable binary/" \
+  > /etc/apt/sources.list.d/jenkins.list
+
+# Install Jenkins
+apt update -y
+apt install -y jenkins
+
+# Start Jenkins
+systemctl enable jenkins
+systemctl start jenkins
